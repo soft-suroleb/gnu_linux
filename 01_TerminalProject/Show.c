@@ -8,6 +8,41 @@
 #define INNER_DY 4
 #define INNER_LINES (LINES - 2 * (DX + INNER_DX))
 
+int getCodeRows(char **code);
+
+WINDOW *setup(char **code, char *fileName) {
+	initscr();
+	noecho();
+	cbreak();
+	start_color();
+	init_pair(1, COLOR_GREEN, COLOR_BLACK);
+	init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+	printw("File: %s; size: %d\n", fileName, getCodeRows(code));
+	refresh();
+
+	WINDOW *frame = newwin(LINES - 2 * DX, COLS - 2 * DY, DX, DY);
+	box(frame, 0, 0);
+	wrefresh(frame);
+
+	keypad(frame, TRUE);
+	scrollok(frame, TRUE);
+
+	return frame;
+}
+
+void cleaning(FILE *file, WINDOW *frame, char **code, char *buf) {
+	fclose(file);
+	getch();
+	delwin(frame);
+	endwin();
+
+	free(buf);
+	for (int i = 0; i < getCodeRows(code); i++) {
+		free(code[i]);
+	}
+	free(code);
+}
+
 void printColoredString(WINDOW *frame, int x, int y, char *str, int color) {
 	int i = 0;
 	while (str[i] != '\0') {
@@ -81,14 +116,57 @@ char **fileSplit(char *buf) {
 	return code;
 }
 
+int keyDownHandler(int startRow, int max) {
+	if (startRow < max) {
+		return startRow + 1;
+	}
+
+	return startRow;
+}
+
+int keyUpHandler(int startRow, int min) {
+	if (startRow > 0) {
+		return startRow - 1;
+	}
+
+	return startRow;
+}
+
+int keyRightHandler(int startCol) {
+	return startCol + 1;
+}
+
+int keyLeftHandler(int startCol, int min) {
+	if (startCol < min) {
+		return startCol - 1;
+	}
+	return startCol;
+}
+
+int keyNPageHandler(int startRow, int max) {
+	if (startRow < max - INNER_LINES) {
+		return startRow + INNER_LINES;
+	}
+
+	return max;
+}
+
+int keyPPageHandler(int startRow, int min) {
+	if (startRow > min) {
+		return startRow - INNER_LINES;
+	}
+
+	return min;
+}
+
 int main(int argc, char* argv[]) {
 	if(argc != 2) {
 		fprintf(stderr, "Usage: ./Show\n");
 		return 1;
 	}
 
-	char* buf;
-	char** code;
+	char *buf;
+	char **code;
 
 	FILE *file = fopen(argv[1], "r");
 	if(file == NULL) {
@@ -99,27 +177,11 @@ int main(int argc, char* argv[]) {
 	buf = file2buf(file);
 	code = fileSplit(buf);
 
-	WINDOW *frame;
+	WINDOW *frame = setup(code, argv[1]);
+
 	int c = 0;	
-
-	initscr();
-	noecho();
-	cbreak();
-	start_color();
-	init_pair(1, COLOR_GREEN, COLOR_BLACK);
-	init_pair(2, COLOR_YELLOW, COLOR_BLACK);
-	printw("File: %s; size: %d\n", argv[1], getCodeRows(code));
-	refresh();
-
-	frame = newwin(LINES - 2 * DX, COLS - 2 * DY, DX, DY);
-	box(frame, 0, 0);
-	wrefresh(frame);
-
-	keypad(frame, TRUE);
-	scrollok(frame, TRUE);
-
-	int start_row = 0;
-	int start_col = 0;
+	int startRow = 0;
+	int startCol = 0;
 
 	while(c != 27) {
 		wclear(frame);
@@ -127,59 +189,36 @@ int main(int argc, char* argv[]) {
 		printColoredString(frame, 0, 5, keyname(c), 2);
 
 		for (int i = 0; i < INNER_LINES; i++) {
-			int current_row = start_row + i;
+			int current_row = startRow + i;
 			writeNumStr(frame, i + INNER_DX, INNER_DY + 2, current_row);
-			mvwaddstr(frame, i + INNER_DX, INNER_DY + 5, code[start_row + i] + start_col);
+			mvwaddstr(frame, i + INNER_DX, INNER_DY + 5, code[startRow + i] + startCol);
 		}
 
 		c = wgetch(frame);
 
 		switch (c) {
 			case KEY_LEFT:
-				if (start_col > 0) {
-					start_col--;
-				}
+				startCol = keyLeftHandler(startCol, 0);
 				break;
 			case KEY_RIGHT:
-				start_col++;
+				startCol = keyRightHandler(startCol);
 				break;
 			case KEY_DOWN:
-				if (start_row < getCodeRows(code) - INNER_LINES) {
-					start_row++;
-				}
+				startRow = keyDownHandler(startRow, getCodeRows(code) - INNER_LINES);
 				break;
 			case KEY_UP:
-				if (start_row > 0) {
-					start_row--;
-				}
+				startRow = keyUpHandler(startRow, 0);
 				break;
 			case KEY_NPAGE:
-				if (start_row < getCodeRows(code) - 2 * INNER_LINES) {
-					start_row += INNER_LINES;
-				} else {
-					start_row = getCodeRows(code) - INNER_LINES;
-				}
+				startRow = keyNPageHandler(startRow, getCodeRows(code) - INNER_LINES);
 				break;
 			case KEY_PPAGE:
-				if (start_row >= INNER_LINES) {
-					start_row -= INNER_LINES;
-				} else {
-					start_row = 0;
-				}
+				startRow = keyPPageHandler(startRow, 0);
 				break;
 		}
 	}
 
-	fclose(file);
-	getch();
-	delwin(frame);
-	endwin();
-
-	free(buf);
-	for (int i = 0; i < getCodeRows(code); i++) {
-		free(code[i]);
-	}
-	free(code);
+	cleaning(file, frame, code, buf);
 
 	return 0;
 }
