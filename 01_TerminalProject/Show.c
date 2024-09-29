@@ -125,11 +125,11 @@ int keyDownHandler(int startRow, int max) {
 }
 
 int keyUpHandler(int startRow, int min) {
-	if (startRow > 0) {
+	if (startRow > min) {
 		return startRow - 1;
 	}
 
-	return startRow;
+	return min;
 }
 
 int keyRightHandler(int startCol) {
