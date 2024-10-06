@@ -3,7 +3,6 @@
 IFS="
 "
 TMPFILE=$(mktemp)
-TMPFILE2=$(mktemp)
 echo $TMPFILE
 
 current_row=0
@@ -25,16 +24,11 @@ shuf < $TMPFILE -o $TMPFILE
 clear
 
 while read -r line; do
-	# вот этот костыль нужен, потому что у меня почему-то не работает
-	# обычный пайп echo $line | read -r letter row col
-	# просто в консоли работает а здесь нет, с чем связано не понимаю
-	echo $line > $TMPFILE2
-	IFS=" " read -r letter row col < $TMPFILE2
+	IFS=" " read -r letter row col <<< $line
 	tput cup $row $col
 	echo $letter
 	sleep $delay
 done < $TMPFILE
-tput cup $((current_row)) 0
+tput cup $current_row 0
 
 rm -f $TMPFILE
-rm -f $TMPFILE2
