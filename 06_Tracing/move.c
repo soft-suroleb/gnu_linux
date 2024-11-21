@@ -26,14 +26,13 @@ int cleanup(int infd, int outfd, int ret_code, const char* outfile) {
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         fprintf(stderr, "Usage: %s infile outfile\n", argv[0]);
-        return 1; // General error
+        return 1;
     }
 
     const char *infile = argv[1];
     const char *outfile = argv[2];
 
     int infd = -1, outfd = -1;
-    int ret_code = 0;
     struct stat st;
     mode_t mode;
     char buffer[BUFFER_SIZE];
@@ -73,23 +72,23 @@ int main(int argc, char *argv[]) {
 
     if (bytes_read < 0) {
         perror("Error reading from input file");
-        return cleanup(infd, outfd, 4, outfile);
+        return cleanup(infd, outfd, 5, outfile);
     }
 
     if (close(infd) < 0) {
         perror("Error closing input file");
-        return cleanup(infd, outfd, 1, outfile);
+        return cleanup(infd, outfd, 6, outfile);
     }
     infd = -1;
 
     if (close(outfd) < 0) {
-        return cleanup(infd, outfd, 1, outfile);
+        return cleanup(infd, outfd, 7, outfile);
     }
     outfd = -1;
 
     if (unlink(infile) < 0) {
         perror("Error deleting input file");
-        return cleanup(infd, outfd, 5, outfile);
+        return cleanup(infd, outfd, 8, outfile);
     }
 
     return cleanup(infd, outfd, 0, outfile);
