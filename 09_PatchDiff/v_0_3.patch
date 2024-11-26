@@ -1,0 +1,27 @@
+--- maze3.c	2024-11-26 10:23:16.784392882 -0800
++++ maze4.c	2024-11-26 10:26:07.439359688 -0800
+@@ -17,17 +17,18 @@
+ void printMaze(char** output, int maze_size);
+ 
+ int main(int argc, char *argv[]) {
+-    if (argc != 3) {
+-        fprintf(stderr, "Usage: %s fill size\n", argv[0]);
++    if (argc != 4) {
++        fprintf(stderr, "Usage: %s seed fill size\n", argv[0]);
+         return 1;
+     }
+ 
+-    srand(time(NULL));
++    unsigned seed = (unsigned)atoi(argv[1]);
++    srand(seed);
+ 
+-    char pass_fill = argv[1][0];
+-    char wall_fill = argv[1][1];
++    char pass_fill = argv[2][0];
++    char wall_fill = argv[2][1];
+ 
+-    int size = atoi(argv[2]);
++    int size = atoi(argv[3]);
+     int maze_size = 2 * size + 1;
+ 
+     Cell** maze = (Cell**)malloc(size * sizeof(Cell*));

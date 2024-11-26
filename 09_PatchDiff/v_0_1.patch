@@ -1,0 +1,144 @@
+--- maze.c	2024-11-26 09:48:08.926053061 -0800
++++ maze2.c	2024-11-26 10:14:59.052737027 -0800
+@@ -2,9 +2,6 @@
+ #include <stdlib.h>
+ #include <time.h>
+ 
+-#define N 6
+-#define MAZE_SIZE (2 * N + 1)
+-
+ enum { UP, RIGHT, DOWN, LEFT };
+ const int DX[4] = { 0, 1, 0, -1 };
+ const int DY[4] = { -1, 0, 1, 0 };
+@@ -14,29 +11,53 @@
+     int walls[4];
+ } Cell;
+ 
+-Cell maze[N][N];
+-
+-void initMaze();
+-void generateMaze(int x, int y);
+-void renderMaze(char output[MAZE_SIZE][MAZE_SIZE]);
+-void printMaze(char output[MAZE_SIZE][MAZE_SIZE]);
++void initMaze(Cell** maze, int size);
++void generateMaze(Cell** maze, int size, int x, int y);
++void renderMaze(Cell** maze, int size, int maze_size, char** output);
++void printMaze(char** output, int maze_size);
++
++int main(int argc, char *argv[]) {
++    if (argc != 2) {
++        fprintf(stderr, "Usage: %s size\n", argv[0]);
++        return 1;
++    }
+ 
+-int main() {
+     srand(time(NULL));
+ 
+-    initMaze();
+-    generateMaze(0, 0);
++    int size = atoi(argv[1]);
++    int maze_size = 2 * size + 1;
++
++    Cell** maze = (Cell**)malloc(size * sizeof(Cell*));
++    for (int i = 0; i < size; i++) {
++        maze[i] = (Cell*)malloc(size * sizeof(Cell));
++    }
++
++    initMaze(maze, size);
++    generateMaze(maze, size, 0, 0);
+ 
+-    char output[MAZE_SIZE][MAZE_SIZE];
+-    renderMaze(output);
+-    printMaze(output);
++    char** output = (char**)malloc(maze_size * sizeof(char*));
++    for (int i = 0; i < maze_size; i++) {
++        output[i] = (char*)malloc(maze_size * sizeof(char));
++    }
++    renderMaze(maze, size, maze_size, output);
++    printMaze(output, maze_size);
++
++    for (int i = 0; i < maze_size; i++) {
++        free(output[i]);
++    }
++    free(output);
++
++    for (int i = 0; i < size; i++) {
++        free(maze[i]);
++    }
++    free(maze);
+ 
+     return 0;
+ }
+ 
+-void initMaze() {
+-    for (int y = 0; y < N; y++) {
+-        for (int x = 0; x < N; x++) {
++void initMaze(Cell** maze, int size) {
++    for (int y = 0; y < size; y++) {
++        for (int x = 0; x < size; x++) {
+             maze[y][x].visited = 0;
+             maze[y][x].walls[UP] = 1;
+             maze[y][x].walls[RIGHT] = 1;
+@@ -55,7 +76,7 @@
+     }
+ }
+ 
+-void generateMaze(int x, int y) {
++void generateMaze(Cell** maze, int size, int x, int y) {
+     maze[y][x].visited = 1;
+ 
+     int directions[4] = { UP, RIGHT, DOWN, LEFT };
+@@ -66,41 +87,41 @@
+         int nx = x + DX[dir];
+         int ny = y + DY[dir];
+ 
+-        if (nx >= 0 && nx < N && ny >= 0 && ny < N && !maze[ny][nx].visited) {
++        if (nx >= 0 && nx < size && ny >= 0 && ny < size && !maze[ny][nx].visited) {
+             maze[y][x].walls[dir] = 0;
+             maze[ny][nx].walls[(dir + 2) % 4] = 0;
+-            generateMaze(nx, ny);
++            generateMaze(maze, size, nx, ny);
+         }
+     }
+ }
+ 
+-void renderMaze(char output[MAZE_SIZE][MAZE_SIZE]) {
+-    for (int x = 0; x < MAZE_SIZE; x++) {
+-        for (int y = 0; y < MAZE_SIZE; y++) {
++void renderMaze(Cell** maze, int size, int maze_size, char** output) {
++    for (int x = 0; x < maze_size; x++) {
++        for (int y = 0; y < maze_size; y++) {
+             output[x][y] = '#';
+         }
+     }
+ 
+-    for (int x = 0; x < N; x++) {
+-        for (int y = 0; y < N; y++) {
++    for (int x = 0; x < size; x++) {
++        for (int y = 0; y < size; y++) {
+             int mazeX = x * 2 + 1;
+             int mazeY = y * 2 + 1;
+             output[mazeX][mazeY] = '.';
+ 
+-            if (maze[x][y].walls[RIGHT] == 0 && mazeY + 1 < MAZE_SIZE - 1) {
++            if (maze[x][y].walls[RIGHT] == 0 && mazeY + 1 < maze_size - 1) {
+                 output[mazeX][mazeY + 1] = '.';
+             }
+ 
+-            if (maze[x][y].walls[DOWN] == 0 && mazeX + 1 < MAZE_SIZE - 1) {
++            if (maze[x][y].walls[DOWN] == 0 && mazeX + 1 < maze_size - 1) {
+                 output[mazeX + 1][mazeY] = '.';
+             }
+         }
+     }
+ }
+ 
+-void printMaze(char output[MAZE_SIZE][MAZE_SIZE]) {
+-    for (int x = 0; x < MAZE_SIZE; x++) {
+-        for (int y = 0; y < MAZE_SIZE; y++) {
++void printMaze(char** output, int maze_size) {
++    for (int x = 0; x < maze_size; x++) {
++        for (int y = 0; y < maze_size; y++) {
+             putchar(output[x][y]);
+         }
+         putchar('\n');

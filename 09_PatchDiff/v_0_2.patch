@@ -1,0 +1,71 @@
+--- maze2.c	2024-11-26 10:14:59.052737027 -0800
++++ maze3.c	2024-11-26 10:23:16.784392882 -0800
+@@ -13,18 +13,21 @@
+ 
+ void initMaze(Cell** maze, int size);
+ void generateMaze(Cell** maze, int size, int x, int y);
+-void renderMaze(Cell** maze, int size, int maze_size, char** output);
++void renderMaze(Cell** maze, int size, int maze_size, char** output, char pass_fill, char wall_fill);
+ void printMaze(char** output, int maze_size);
+ 
+ int main(int argc, char *argv[]) {
+-    if (argc != 2) {
+-        fprintf(stderr, "Usage: %s size\n", argv[0]);
++    if (argc != 3) {
++        fprintf(stderr, "Usage: %s fill size\n", argv[0]);
+         return 1;
+     }
+ 
+     srand(time(NULL));
+ 
+-    int size = atoi(argv[1]);
++    char pass_fill = argv[1][0];
++    char wall_fill = argv[1][1];
++
++    int size = atoi(argv[2]);
+     int maze_size = 2 * size + 1;
+ 
+     Cell** maze = (Cell**)malloc(size * sizeof(Cell*));
+@@ -39,7 +42,7 @@
+     for (int i = 0; i < maze_size; i++) {
+         output[i] = (char*)malloc(maze_size * sizeof(char));
+     }
+-    renderMaze(maze, size, maze_size, output);
++    renderMaze(maze, size, maze_size, output, pass_fill, wall_fill);
+     printMaze(output, maze_size);
+ 
+     for (int i = 0; i < maze_size; i++) {
+@@ -95,10 +98,13 @@
+     }
+ }
+ 
+-void renderMaze(Cell** maze, int size, int maze_size, char** output) {
++void renderMaze(
++    Cell** maze, int size, int maze_size,
++    char** output, char pass_fill, char wall_pass
++) {
+     for (int x = 0; x < maze_size; x++) {
+         for (int y = 0; y < maze_size; y++) {
+-            output[x][y] = '#';
++            output[x][y] = wall_pass;
+         }
+     }
+ 
+@@ -106,14 +112,14 @@
+         for (int y = 0; y < size; y++) {
+             int mazeX = x * 2 + 1;
+             int mazeY = y * 2 + 1;
+-            output[mazeX][mazeY] = '.';
++            output[mazeX][mazeY] = pass_fill;
+ 
+             if (maze[x][y].walls[RIGHT] == 0 && mazeY + 1 < maze_size - 1) {
+-                output[mazeX][mazeY + 1] = '.';
++                output[mazeX][mazeY + 1] = pass_fill;
+             }
+ 
+             if (maze[x][y].walls[DOWN] == 0 && mazeX + 1 < maze_size - 1) {
+-                output[mazeX + 1][mazeY] = '.';
++                output[mazeX + 1][mazeY] = pass_fill;
+             }
+         }
+     }
