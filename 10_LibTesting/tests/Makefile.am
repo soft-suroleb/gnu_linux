@@ -1,4 +1,5 @@
-TESTS = dummy
+TESTS_ENVIRONMENT = CK_VERBOSITY=$(CK_VERBOSITY)
+TESTS = dummy upstream
 bin_PROGRAMS = dummy upstream
 
 check_PROGRAMS = dummy upstream

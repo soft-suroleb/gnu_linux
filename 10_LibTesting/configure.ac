@@ -17,6 +17,10 @@ AC_PROG_LIBTOOL
 # Checks for header files.
 AC_CHECK_HEADERS([stddef.h stdint.h stdlib.h sys/time.h])
 
+# Variable definitins
+AC_SUBST(CK_VERBOSITY, verbose)
+AC_ARG_VAR(CK_VERBOSITY, [Default: "verbose", can be "silent", "minimal" or "normal"])
+
 # Joint pkgconfig library/include tests
 PKG_CHECK_MODULES([CHECK],[check])
 
