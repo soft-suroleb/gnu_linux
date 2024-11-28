@@ -1,2 +1,2 @@
 bin_PROGRAMS = game
-AM_CFLAGS = -DLOCALEDIR='"$(localedir)"'
+AM_CPPFLAGS = -D'LOCALEDIR="$(localedir)"'
