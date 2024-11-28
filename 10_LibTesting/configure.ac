@@ -21,6 +21,11 @@ AC_CHECK_HEADERS([stddef.h stdint.h stdlib.h sys/time.h])
 AC_SUBST(CK_VERBOSITY, verbose)
 AC_ARG_VAR(CK_VERBOSITY, [Default: "verbose", can be "silent", "minimal" or "normal"])
 
+AC_ARG_ENABLE([gcov],
+              [AS_HELP_STRING([--enable-gcov], [use Gcov to test the test suite])],
+              [], [enable_gcov=no])
+AM_CONDITIONAL([COND_GCOV],[test '!' "$enable_gcov" = no])
+
 # Joint pkgconfig library/include tests
 PKG_CHECK_MODULES([CHECK],[check])
 
