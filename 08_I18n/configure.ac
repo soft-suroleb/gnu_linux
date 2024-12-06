@@ -6,7 +6,7 @@ AC_INIT([I18n], [0.1], [bozin2002@yandex.ru])
 AM_INIT_AUTOMAKE([foreign])
 
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19.8])
+AM_GNU_GETTEXT_VERSION([0.21])
 
 AC_CONFIG_SRCDIR([src/game.c])
 AC_CONFIG_HEADERS([config.h])

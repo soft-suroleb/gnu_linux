@@ -13,17 +13,17 @@ int main() {
 	textdomain(PACKAGE);
 
     int left = 0, right = 100;
+	char input[10];
 
     while (left < right) {
         int mid = (left + right) / 2;
-        char choice = 0;
 
         printf(_("Is your number more than %d (y/n)?\n"), mid);
-        scanf("%c", &choice);
+	gets(input);
 
-        if (choice == 'y') {
+        if (input[0] == 'y') {
             left = mid + 1;
-        } else if (choice == 'n') {
+        } else if (input[0] == 'n') {
             right = mid;
         } else {
             continue;
