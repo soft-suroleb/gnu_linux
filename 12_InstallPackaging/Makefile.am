@@ -1,4 +1,4 @@
-SUBDIRS = src po lib
+SUBDIRS = po lib src tests
 
 @DX_RULES@
 

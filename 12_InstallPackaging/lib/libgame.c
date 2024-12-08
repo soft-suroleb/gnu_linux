@@ -1,4 +1,9 @@
 #include "libgame.h"
+#include <stdio.h>
+#include <libintl.h>
+#include <locale.h>
+
+#define _(STRING) gettext(STRING)
 
 const char* romanNumerals[100] = {
     "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",

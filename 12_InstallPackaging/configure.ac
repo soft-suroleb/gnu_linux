@@ -10,10 +10,14 @@ DX_INIT_DOXYGEN([game])
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.21])
 
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_SRCDIR([src/game.c])
 AC_CONFIG_HEADERS([config.h])
 AC_SUBST(GETTEXT_PACKAGE, "$PACKAGE")
 ALL_LINGUAS="ru"
+
+# Joint pkgconfig library/include tests
+PKG_CHECK_MODULES([CHECK],[check])
 
 # Checks for programs.
 AC_PROG_CC
@@ -30,5 +34,5 @@ AC_CHECK_HEADERS([libintl.h locale.h stdlib.h])
 # Checks for library functions.
 AC_CHECK_FUNCS([setlocale])
 
-AC_CONFIG_FILES([Makefile po/Makefile.in src/Makefile Doxyfile lib/Makefile])
+AC_CONFIG_FILES([Makefile po/Makefile.in src/Makefile Doxyfile lib/Makefile tests/Makefile])
 AC_OUTPUT
